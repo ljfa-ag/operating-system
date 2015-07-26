@@ -13,13 +13,13 @@ void handler()
 {
     scr << "Interrupt test\n";
     video::letter ls[] = {
-        {'l',fbcolor(0)},
-        {'j',fbcolor(1)},
-        {'f',fbcolor(2)},
-        {'a',fbcolor(3)},
-        {'-',fbcolor(4)},
-        {'a',fbcolor(5)},
-        {'g',fbcolor(6)},
+        {'l',fbcolor(1)},
+        {'j',fbcolor(2)},
+        {'f',fbcolor(3)},
+        {'a',fbcolor(4)},
+        {'-',fbcolor(5)},
+        {'a',fbcolor(6)},
+        {'g',fbcolor(7)},
     };
     scr.copy(ls, sizeof(ls)/sizeof(video::letter));
     scr.newline();

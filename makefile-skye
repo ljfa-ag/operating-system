@@ -1,0 +1,67 @@
+# Makefile.
+
+SDIR=src
+SOURCES_C = $(shell find $(SDIR) -type f -name "*.c";)
+SOURCES_CXX = $(shell find $(SDIR) -type f -name "*.cpp";)
+SOURCES_ASM = $(shell find $(SDIR) -type f -name "*.asm";)
+SOURCES_S = $(shell find $(SDIR) -type f -name "*.s";)
+AUX_FILES = Makefile
+OUTPUT=$(BDIR)/kernel.sys
+
+CC=i686-elf-gcc
+CXX=i686-elf-g++
+NASM=nasm
+AS=i686-elf-as
+WARNINGS=-Wall -Wextra -W
+CFLAGS=--std=gnu99 -ffreestanding -O2 $(WARNINGS)
+LDFLAGS=-T$(SDIR)/link.ld $(WARNINGS)
+NASMFLAGS=-felf -Wall
+ASFLAGS=-warn
+
+BDIR=bin
+ODIR=$(BDIR)/obj
+_OBJ = $(patsubst %.c,%.o,$(SOURCES_C))
+_OBJ += $(patsubst %.cpp,%.o,$(SOURCES_CXX))
+_OBJ += $(patsubst %.asm,%.o,$(SOURCES_ASM))
+_OBJ += $(patsubst %.asm,%.o,$(SOURCES_S))
+OBJ = $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ))
+
+ALLFILES = $(SOURCES_C) $(SOURCES_CXX) $(SOURCES_ASM) $(SOURCES_S)  $(AUX_FILES)
+
+.PHONY: clean todolist
+
+all: start $(OBJ) link
+#	@echo $(SOURCES)
+#	@echo $(_OBJ)
+#	@echo $(OBJ)
+#	@echo $(LDFLAGS)
+#	@echo $(patsubst %.asm,%.o,$(SOURCES_ASM))
+#	@echo $(patsubst %.c,%.o,$(SOURCES))
+#	@echo $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ)) $(patsubst $(SDIR)/%,$(ODIR)/%,$(patsubst %.asm,%.o,$(SOURCES_ASM)))
+
+start:
+	-@mkdir bin
+	-@mkdir bin/obj
+
+clean:
+	-rm $(OBJ) $(OUTPUT)
+
+link:
+	i686-elf-gcc $(LDFLAGS) -o $(OUTPUT) -ffreestanding -O2 -nostdlib $(OBJ) -lgcc
+
+todolist:
+	-@for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file; done; true
+
+#handle .asm files with nasm     
+$(ODIR)/%.o: $(SDIR)/%.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
+
+$(ODIR)/%.o: $(SDIR)/%.s
+	$(AS) $(ASFLAGS) $< -o $@
+
+$(ODIR)/%.o: $(SDIR)/%.c
+	$(CXX) $(CFLAGS) -c $< -o $@
+$(ODIR)/%.o: $(SDIR)/%.cpp
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+

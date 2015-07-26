@@ -13,6 +13,6 @@ void static_construct()
 //Destructs all static objects
 void static_destruct()
 {
-    for(auto fp = &start_dtors; fp < &end_dtors; ++fp)
+    for(auto fp = &end_dtors-1; fp >= &start_dtors; --fp)
         (*fp)();
 }

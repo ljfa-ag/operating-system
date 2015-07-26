@@ -10,8 +10,9 @@ CXX  = g++
 #CFLAGS    = -m32 -Wall -g -fno-stack-protector -std=c99
 LDFLAGS   = -melf_i386 -Tkernel.ld
 NASMFLAGS = -felf
-CXXFLAGS  = -m32 -Wall -g -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti \
-            -fno-exceptions -std=c++11 -I/usr/include/c++/4.8/i686-linux-gnu
+CXXFLAGS_NOOPT = -m32 -Wall -g -fno-stack-protector -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti \
+                 -fno-exceptions -ffreestanding -std=c++11 -I/usr/include/c++/4.8/i686-linux-gnu
+CXXFLAGS  = $(CXXFLAGS_NOOPT) -O2
 
 all: kernel
 
@@ -26,6 +27,10 @@ kernel: $(OBJS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+#Optimization with -O2 does not work properly for gdt.cpp due to inline asm
+gdt.o:
+	$(CXX) $(CXXFLAGS_NOOPT) -O1 -c -o $@ $<
 
 clean:
 	rm -f $(OBJS) kernel

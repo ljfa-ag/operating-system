@@ -30,27 +30,23 @@ OBJ = $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ))
 
 ALLFILES = $(SOURCES_C) $(SOURCES_CXX) $(SOURCES_ASM) $(SOURCES_S) $(AUX_FILES)
 
-.PHONY: clean todolist
+.PHONY: all clean todolist run
 
-all: $(OBJ) link
-#	@echo $(SOURCES)
-#	@echo $(_OBJ)
-#	@echo $(OBJ)
-#	@echo $(LDFLAGS)
-#	@echo $(patsubst %.asm,%.o,$(SOURCES_ASM))
-#	@echo $(patsubst %.c,%.o,$(SOURCES))
-#	@echo $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ)) $(patsubst $(SDIR)/%,$(ODIR)/%,$(patsubst %.asm,%.o,$(SOURCES_ASM)))
+all: $(OUTPUT)
 
 clean:
 	-rm -f $(OBJ) $(OUTPUT)
 
-link:
-	$(LD) $(LDFLAGS) -o $(OUTPUT) $(OBJ)
+$(OUTPUT): $(OBJ)
+	$(LD) $(LDFLAGS) -o $@ $(OBJ)
 
 todolist:
 	-@for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file; done; true
 
-#handle .asm files with nasm     
+run: $(OUTPUT)
+	./emu.sh
+
+#handle .asm files with nasm
 $(ODIR)/%.o: $(SDIR)/%.asm
 	$(NASM) $(NASMFLAGS) $< -o $@
 

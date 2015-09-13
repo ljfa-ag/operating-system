@@ -5,16 +5,18 @@ SOURCES_C = $(shell find $(SDIR) -type f -name "*.c";)
 SOURCES_CXX = $(shell find $(SDIR) -type f -name "*.cpp";)
 SOURCES_ASM = $(shell find $(SDIR) -type f -name "*.asm";)
 SOURCES_S = $(shell find $(SDIR) -type f -name "*.s";)
-AUX_FILES = Makefile
-OUTPUT=$(BDIR)/kernel.sys
+AUX_FILES = makefile
+OUTPUT=$(BDIR)/kernel
 
 CC=i686-elf-gcc
 CXX=i686-elf-g++
 NASM=nasm
 AS=i686-elf-as
-WARNINGS=-Wall -Wextra -W
-CFLAGS=--std=gnu99 -ffreestanding -O2 $(WARNINGS)
-LDFLAGS=-T$(SDIR)/link.ld $(WARNINGS)
+LD=$(CC)
+WARNINGS=-Wall -Wextra
+CFLAGS=-std=gnu99 -ffreestanding -O2 $(WARNINGS)
+CXXFLAGS=-std=c++11 -ffreestanding -O2 $(WARNINGS)
+LDFLAGS=-Tkernel.ld -ffreestanding -O2 -nostdlib $(WARNINGS) -lgcc
 NASMFLAGS=-felf -Wall
 ASFLAGS=-warn
 
@@ -26,11 +28,11 @@ _OBJ += $(patsubst %.asm,%.o,$(SOURCES_ASM))
 _OBJ += $(patsubst %.asm,%.o,$(SOURCES_S))
 OBJ = $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ))
 
-ALLFILES = $(SOURCES_C) $(SOURCES_CXX) $(SOURCES_ASM) $(SOURCES_S)  $(AUX_FILES)
+ALLFILES = $(SOURCES_C) $(SOURCES_CXX) $(SOURCES_ASM) $(SOURCES_S) $(AUX_FILES)
 
 .PHONY: clean todolist
 
-all: start $(OBJ) link
+all: $(OBJ) link
 #	@echo $(SOURCES)
 #	@echo $(_OBJ)
 #	@echo $(OBJ)
@@ -39,15 +41,11 @@ all: start $(OBJ) link
 #	@echo $(patsubst %.c,%.o,$(SOURCES))
 #	@echo $(patsubst $(SDIR)/%,$(ODIR)/%,$(_OBJ)) $(patsubst $(SDIR)/%,$(ODIR)/%,$(patsubst %.asm,%.o,$(SOURCES_ASM)))
 
-start:
-	-@mkdir bin
-	-@mkdir bin/obj
-
 clean:
-	-rm $(OBJ) $(OUTPUT)
+	-rm -f $(OBJ) $(OUTPUT)
 
 link:
-	i686-elf-gcc $(LDFLAGS) -o $(OUTPUT) -ffreestanding -O2 -nostdlib $(OBJ) -lgcc
+	$(LD) $(LDFLAGS) -o $(OUTPUT) $(OBJ)
 
 todolist:
 	-@for file in $(ALLFILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file; done; true
@@ -62,6 +60,6 @@ $(ODIR)/%.o: $(SDIR)/%.s
 $(ODIR)/%.o: $(SDIR)/%.c
 	$(CXX) $(CFLAGS) -c $< -o $@
 $(ODIR)/%.o: $(SDIR)/%.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 

@@ -1,9 +1,41 @@
 #include "video.h"
 
 #include "outb.h"
-#include <algorithm>
+#include "memcpy.h"
 
 namespace os {
+
+namespace { //anonymous
+    //Helper functions that replace some STL functions
+    //TODO: Separate them out
+    template<class It, class T>
+    It fill_n(It begin, size_t n, const T& value)
+    {
+        for(size_t i = 0; i < n; ++i)
+            *begin++ = value;
+        return begin;
+    }
+
+    /*template<class InputIt, class OutputIt>
+    OutputIt copy_(InputIt begin, InputIt end, OutputIt out)
+    {
+        while(begin != end)
+            *out++ = *begin++;
+        return out;
+    }*/
+
+    template<class T>
+    const T& min(const T& a, const T& b)
+    {
+        return a < b ? a : b;
+    }
+
+    template<class T>
+    const T& max(const T& a, const T& b)
+    {
+        return a > b ? a : b;
+    }
+}
 
 video scr;
 
@@ -26,7 +58,7 @@ void video::update_cursor()
 
 void video::clear()
 {
-    std::fill_n(textmem, cols*lines, letter{' ', tcolor});
+    fill_n(textmem, cols*lines, letter{' ', tcolor});
     
     cx = 0;
     cy = 0;
@@ -35,10 +67,11 @@ void video::clear()
 void video::scroll()
 {
     //Copy the contents of the screen one line up
-    std::copy(textmem + cols, textmem + cols*lines, textmem);
+    //copy(textmem + cols, textmem + cols*lines, textmem);
+    memcpy(textmem, textmem + cols, cols*lines * sizeof(letter));
 
     //Overwrite the last line with blank spaces
-    std::fill_n(textmem + cols*(lines-1), cols, letter{' ', tcolor});
+    fill_n(textmem + cols*(lines-1), cols, letter{' ', tcolor});
 
     //Adapt the cursor position
     if(cy == 0)
@@ -86,7 +119,7 @@ void video::putn(long i, unsigned int base, unsigned int padding)
     {
         setch('-');
         advance();
-        putu(-i, base, std::max(padding, 1U) - 1);
+        putu(-i, base, max(padding, 1U) - 1);
     }
 }
 
@@ -97,7 +130,7 @@ void video::putu(unsigned long i, unsigned int base, unsigned int padding)
     if(base < 2 || base > 36)
         return;
     
-    padding = std::min(padding, bufsize);
+    padding = min<size_t>(padding, bufsize);
     
     char buf[8*bufsize];
     char* bufend = buf + bufsize;

@@ -4,6 +4,7 @@
 #include "types.h"
 #include "outb.h"
 
+//TODO: Remove Boost dependency
 #include <boost/preprocessor/repetition.hpp>
 
 extern "C" {

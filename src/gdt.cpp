@@ -44,8 +44,8 @@ void gdt::load()
         "mov %%ax, %%fs;"
         "mov %%ax, %%gs;"
         "mov %%ax, %%ss;"
-        "ljmp $0x8, $.l;"
-        ".l:"
+        "ljmp $0x8, $1f;"
+        "1:"
         : : "m" (gdtp)
     );
 }

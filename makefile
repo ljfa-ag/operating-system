@@ -54,11 +54,8 @@ $(ODIR)/%.o: $(SDIR)/%.s
 	$(AS) $(ASFLAGS) $< -o $@
 
 $(ODIR)/%.o: $(SDIR)/%.c
-	$(CXX) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-#Optimization with -O2 does not work properly for gdt.cpp due to inline asm
-$(ODIR)/gdt.o: $(SDIR)/gdt.cpp
-	$(CXX) $(CXXFLAGS) -O1 -c $< -o $@ 
 

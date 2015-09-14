@@ -1,8 +1,0 @@
-constructors.o: constructors.cpp video.h types.h color.h
-gdt.o: gdt.cpp gdt.h types.h
-idt.o: idt.cpp idt.h types.h outb.h
-inthandler.o: inthandler.cpp inthandler.h types.h video.h color.h outb.h
-main.o: main.cpp video.h types.h color.h gdt.h idt.h outb.h
-memcpy.o: memcpy.cpp
-video.o: video.cpp video.h types.h color.h outb.h
-virtual.o: virtual.cpp video.h types.h color.h
